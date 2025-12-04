@@ -1,10 +1,11 @@
+import cv2
+import numpy as np
 p = __import__("04_2")
 
 
 def dump(i, grid):
     G = grid[1:-1, 1:-1]
     img = np.zeros((G.shape[1], G.shape[0], 3), np.uint8)
-    #img[:, :, :] = [100, 100, 100]
     img[G == True] = [255, 255, 255]
     cv2.imwrite(f"image.{i:04d}.png", img)
 

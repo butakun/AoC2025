@@ -1,30 +1,27 @@
 import numpy as np
 
+def read(filename):
+    grid_ = np.array([ [int(i == "@") for i in l.strip()] for l in open(filename) ])
+    grid = np.zeros((grid_.shape[0] + 2, grid_.shape[1] + 2), grid_.dtype)
+    grid[1:-1, 1:-1] = grid_
+    return grid
+
+
 def clean(grid):
-    idim, jdim = grid.shape
-
-    indices = []
-    for i in range(1, idim-1):
-        for j in range(1, jdim-1):
-            if not grid[i, j]:
-                continue
-            nei = grid[i-1:i+2, j-1:j+2]
-            rolls = nei.sum() - 1
-            if rolls < 4:
-                indices.append((i, j))
-
-    for i, j in indices:
-        grid[i, j] = False
-
-    return len(indices)
+    r = \
+            grid[ :-2,:-2] + grid[ :-2,1:-1] + grid[ :-2,2:] + \
+            grid[1:-1,:-2] +                   grid[1:-1,2:] + \
+            grid[2:  ,:-2] + grid[2:  ,1:-1] + grid[2:  ,2:]
+    nei = r < 4
+    rol = grid[1:-1,1:-1] == 1
+    can = nei & rol
+    grid[1:-1,1:-1][can] = 0
+    rolls = can.sum()
+    return rolls
 
 
 def main(filename):
-    grid = [ [False, *[i == "@" for i in l.strip()], False] for l in open(filename) ]
-    jdim = len(grid[0])
-    grid.insert(0, [False] * jdim)
-    grid.append([False] * jdim)
-    grid = np.array(grid)
+    grid = read(filename)
     rolls0 = grid.sum()
     print(grid)
     print(rolls0)
@@ -35,5 +32,10 @@ def main(filename):
     rolls = grid.sum()
     print(rolls, rolls0 - rolls)
 
+
 if __name__ == "__main__":
-    main("input.txt")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", nargs="?", default="input_debug.txt")
+    args = parser.parse_args()
+    main(args.input)
