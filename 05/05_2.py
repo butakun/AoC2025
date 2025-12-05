@@ -1,5 +1,3 @@
-import numpy as np
-
 def read(filename):
     ranges = []
     f = open(filename)
