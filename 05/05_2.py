@@ -17,27 +17,17 @@ def main(filename):
     ranges.sort(key=lambda r: r[0])
     print(ranges)
 
-    new_ranges = []
-    for i, range_ in enumerate(ranges):
-        print(f"*** {i=}, {range_=}, {new_ranges=}")
-        if not new_ranges:
-            new_ranges.append(range_)
-            continue
-        range_last = new_ranges.pop()
-        if range_[0] <= range_last[1]:
-            new_range_last = (range_last[0], max(range_[1], range_last[1]))
-            print(f"{range_=}, {range_last=}, {new_range_last=}")
-            new_ranges.append(new_range_last)
-        else:
-            new_ranges.append(range_last)
-            new_ranges.append(range_)
-
-    print(f"=== {new_ranges=}")
-
     count = 0
-    for r in new_ranges:
-        count += r[1] - r[0] + 1
-    print(f"{count=}")
+    range_last = ranges[0]
+    for range_ in ranges[1:]:
+        if range_[0] <= range_last[1]:
+            range_last = range_last[0], max(range_[1], range_last[1])
+        else:
+            count += range_last[1] - range_last[0] + 1
+            range_last = range_
+        print(f"{range_=}, {range_last=}, {count=}")
+    count += range_last[1] - range_last[0] + 1
+    print(count)
 
 
 if __name__ == "__main__":
