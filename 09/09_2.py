@@ -44,41 +44,24 @@ def main(filename):
         p1 = p2
 
     amax = None
-    x1, y1 = p1
-    for p3 in tiles[:N]:
-        x3, y3 = p3
-        if y1 < y3:
-            continue
-        xmin = min(x1, x3)
-        xmax = max(x1, x3)
-        ymin = min(y1, y3)
-        ymax = max(y1, y3)
+    for p in [p1, p2]:
+        x1, y1 = p
+        for p3 in tiles[:N]:
+            x3, y3 = p3
+            xmin = min(x1, x3)
+            xmax = max(x1, x3)
+            ymin = min(y1, y3)
+            ymax = max(y1, y3)
+            if y1 < ymin or ymax < y1 or x1 < xmin or xmax < x1:
+                continue
 
-        w = xmax - xmin + 1
-        h = ymax - ymin + 1
-        a = w * h
-        if amax is None or amax < a:
-            if not intersects(xmin, xmax, ymin, ymax, tiles):
-                amax = a
-                print(f"{p1=}, {p3=}, amax={int(amax)}")
-
-    x1, y1 = p2
-    for p3 in tiles[:N]:
-        x3, y3 = p3
-        if y3 < y1:
-            continue
-        xmin = min(x1, x3)
-        xmax = max(x1, x3)
-        ymin = min(y1, y3)
-        ymax = max(y1, y3)
-
-        w = xmax - xmin + 1
-        h = ymax - ymin + 1
-        a = w * h
-        if amax is None or amax < a:
-            if not intersects(xmin, xmax, ymin, ymax, tiles):
-                amax = a
-                print(f"{p2=}, {p3=}, amax={int(amax)}")
+            w = xmax - xmin + 1
+            h = ymax - ymin + 1
+            a = w * h
+            if amax is None or amax < a:
+                if not intersects(xmin, xmax, ymin, ymax, tiles):
+                    amax = a
+                    print(f"{p=}, {p3=}, amax={int(amax)}")
 
 
 if __name__ == "__main__":
