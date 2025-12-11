@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from collections import defaultdict
+from collections import defaultdict, deque
 from priority_queue import PriorityQueue
 
 
@@ -83,37 +83,61 @@ def merge_button_coefs(coefs1, coefs2):
     return merged
 
 
+def admissible_children(buttons, joltages, parent, active_buttons):
+    i_joltage_parent = parent[0]
+    if i_joltage_parent == len(joltages) - 1:
+        # the last joltage
+        return []
+
+    i_joltage = i_joltage_parent + 1
+
+    joltage = joltages[i_joltage]
+    _, active_button_indices = active_buttons[i_joltage]
+
+    combo = button_combo(buttons, joltage, active_button_indices)
+    children = []
+    for coefs in combo:
+        merged_coefs = merge_button_coefs(parent[1], coefs)
+        if merged_coefs is not None:
+            children.append((i_joltage, merged_coefs))
+    return children
+
+
+def press_count(coefs):
+    return sum([i if i else 0 for i in coefs])
+
+
 def solve(buttons, joltages):
     active_buttons = list_active_buttons(buttons, joltages)
     #print(f"  {active_buttons=}")
 
+    nj = len(joltages)
     nb = len(buttons)
-    candidates = [[None] * nb]
-    for i, joltage in enumerate(joltages):
-        print(f"  {i=}, {joltage=}")
-        _, active_button_indices = active_buttons[i]
-        combo = button_combo(buttons, joltage, active_button_indices)
-        #print(f"joltage={int(joltage)},{active_button_indices=}")
-        #print("generating new candidates")
-        new_candidates = []
-        for parent in candidates:
-            #print(f"  Parent={parent}")
-            for coefs in combo:
-                child = merge_button_coefs(parent, coefs)
-                if child is not None:
-                    new_candidates.append(child)
-                    #print(f"    {child}")
-        candidates = new_candidates
+    root = [-1, [None] * nb]
+    Q = deque([root])
+    min_press_count = None
+    while Q:
+        u = Q.popleft()
 
-    print("Counting # of button presses")
-    min_count = None
-    for candidate in candidates:
-        count = sum(candidate)
-        if min_count is None or count < min_count:
-            min_count = count
-        print(f"  {candidate} => {sum(candidate)}")
-    print(f"  Minimum = {min_count}")
-    return min_count
+        print(f"Parent {u}: {min_press_count=}")
+
+        u_count = press_count(u[1])
+        if u[0] == nj - 1:
+            if min_press_count is None:
+                min_press_count = u_count
+            else:
+                if u_count < min_press_count:
+                    min_press_count = u_count
+
+        vv = admissible_children(buttons, joltages, u, active_buttons)
+
+        for v in vv:
+            count = press_count(v[1])
+            if min_press_count is None or count < min_press_count:
+                print(f"  Child {v} {count=}")
+                Q.appendleft(v)
+
+    return min_press_count
 
 
 def sort_problem(buttons, joltages):
@@ -140,8 +164,8 @@ def main(filename):
         print(f"MACHINE {buttons_}, {joltages_}")
         count = solve(buttons_, joltages_)
         sum += count
+        print(f"{count=}, {sum=}")
         print()
-    print(f"{sum=}")
 
 if __name__ == "__main__":
     import argparse
