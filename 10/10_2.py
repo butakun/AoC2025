@@ -47,6 +47,8 @@ def solve(buttons, joltages):
     bounds = [(0, None) for i in range(nb)]
     res = scipy.optimize.linprog(c=c, A_eq=A, b_eq=b, bounds=bounds, integrality=1)
     print(res)
+    x = res.x.astype(int)
+    print(f"  {x=}")
     return int(res.fun)
 
 
